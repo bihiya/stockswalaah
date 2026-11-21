@@ -1,195 +1,55 @@
-
 # StockWallah
 
-StockWallah is a microservices-based stock portfolio platform built using React, Node.js, Kafka, Redis, and MongoDB Atlas.
+StockWallah is the root platform repository for a TypeScript microservices platform. It contains working scaffolds and shared infrastructure; domain workflows are intentionally left for service teams to implement.
 
-## Features
+## Repository layout
 
-- User Authentication
-- Portfolio Management
-- Watchlists
-- Real Time Notifications
-- Corporate News
-- AI Sentiment Analysis
-- Audit Logging
-- Kafka Event Driven Architecture
-- Redis Caching
-
-## Tech Stack
-
-### Frontend
-
-- React
-- Redux Toolkit
-- Material UI
-
-### Backend
-
-- Node.js
-- Express.js
-
-### Messaging
-
-- Apache Kafka
-
-### Database
-
-- MongoDB Atlas
-
-### Cache
-
-- Redis
-
-### Authentication
-
-- JWT
-- Refresh Tokens
-
-## Services
-
-- API Gateway
-- Auth Service
-- Portfolio Service
-- Notification Service
-- Sentiment Service
-- Corporate News Service
-- Audit Service
-
-## Local Setup
-
-```bash
-docker-compose up -d
+```text
+apps/                 Express services and the React web application
+packages/             Reusable config, auth, Kafka, logger, errors, types, responses
+infrastructure/       Local Kafka, Redis, and monitoring configuration
+docs/                 Architecture and development notes
+.github/workflows/    CI lint, test, and build workflows
 ```
+
+Node services: API Gateway, Auth, Portfolio, Notification, Audit, Sentiment, and Corporate News. Each service exposes `/health` and `/docs` and has its own environment and Docker configuration.
+
+## Prerequisites
+
+- Node.js 20.11+ and npm 10+
+- Docker Compose v2
+
+## Quick start
 
 ```bash
 npm install
-```
-
-```bash
+cp .env.example .env
+docker compose up -d
 npm run dev
 ```
 
-## Environment Variables
+The root `dev` task starts the API services and web app through Turborepo. Web runs on port 5173; API services run on ports 3000-3006. Local infrastructure is configured in `docker-compose.yml`. Services use local MongoDB by default; replace `MONGO_URI` with a MongoDB Atlas connection string when needed.
 
-AUTH_SERVICE_URL=
+Useful commands:
 
-MONGO_URI=
-
-REDIS_URL=
-
-KAFKA_BROKERS=
-
-JWT_SECRET=
-
-OPENAI_API_KEY=
+```bash
+npm run build
+npm run lint
+npm test
+npm run format:check
 ```
 
+## Configuration
 
-stockwallah/
+Copy `.env.example` to `.env`. Values there are local development defaults only. Use a unique `JWT_SECRET` and managed secrets in deployed environments. The services validate configuration at startup; optional infrastructure URLs allow health-only development without external dependencies.
 
-├── apps/
-│
-├── api-gateway/
-│
-├── auth-service/
-│
-├── portfolio-service/
-│
-├── notification-service/
-│
-├── sentiment-service/
-│
-├── corporate-news-service/
-│
-├── audit-service/
-│
-├── shared/
-│
-├── docker/
-│
-├── kafka/
-│
-├── docs/
-│
-└── frontend/
+## API conventions
 
+- `GET /health` reports service liveness.
+- `GET /docs` serves the service's OpenAPI/Swagger UI.
+- API responses use the shared response envelope; errors are normalized by shared middleware.
+- Kafka event topic names are centralized in `packages/shared-kafka`.
 
+## Engineering boundaries
 
-user-created
-
-user-login
-
-portfolio-created
-
-portfolio-updated
-
-stock-price-alert
-
-audit-event
-
-news-received
-
-sentiment-generated
-
-notification-requested
-
-
-                       ┌─────────────┐
-                       │ React Front │
-                       │  NextJS UI  │
-                       └──────┬──────┘
-                              │
-                              ▼
-                      ┌──────────────┐
-                      │ API Gateway  │
-                      │ Express/Nest │
-                      └──────┬───────┘
-                             │ JWT
- ────────────────────────────┼──────────────────────────
-
-      ┌──────────────┐
-      │ Auth Service │
-      │ Login Signup │
-      └──────┬───────┘
-             │
-             ▼
-        MongoDB Atlas
-
-
-      ┌──────────────────┐
-      │ Portfolio Service│
-      │ Holdings/SIPs    │
-      └──────┬───────────┘
-             │
-             ▼
-          Kafka
-
-
-      ┌──────────────────┐
-      │ Notification Svc │
-      │ Email/SMS/Push   │
-      └──────────────────┘
-
-      ┌──────────────────┐
-      │ Audit Service    │
-      │ Activity Logs    │
-      └──────────────────┘
-
-      ┌──────────────────┐
-      │ Sentiment Svc    │
-      │ News Analysis    │
-      └──────────────────┘
-
-      ┌──────────────────┐
-      │ Corporate News   │
-      │ Market News      │
-      └──────────────────┘
-
-             ▲
-             │
-         Kafka Bus
-
-   Redis Cache (shared)
-
-   MongoDB Atlas
-
+Services own their domain logic and persistence. Shared packages contain cross-cutting primitives only. Kafka producers/consumers, Redis, and MongoDB connectors are explicit building blocks, not automatically connected unless configured. Add domain routes, DTOs, repositories, and tests within the owning service.

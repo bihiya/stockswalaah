@@ -4,7 +4,7 @@ Generate the INITIAL WORKING MONOREPO SETUP for a project named "StockWallah".
 
 IMPORTANT:
 This repository is the ROOT PLATFORM REPOSITORY.
-
+dir
 Do NOT implement complete business logic.
 
 Create only the foundation architecture, scaffolding, configuration, infrastructure setup, and shared packages.
