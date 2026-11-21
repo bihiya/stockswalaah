@@ -1,5 +1,4 @@
 
-
 # StockWallah
 
 StockWallah is a microservices-based stock portfolio platform built using React, Node.js, Kafka, Redis, and MongoDB Atlas.
