@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { ProtectedRoute } from "./ProtectedRoute";
 
 const DashboardLayout = lazy(() =>
   import("../layouts/DashboardLayout").then((module) => ({
@@ -38,20 +37,19 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    element: <ProtectedRoute />,
+    element: (
+      <Suspense fallback={loadingPage}><DashboardLayout /></Suspense>
+    ),
     children: [
       {
+        path: "/",
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: "/dashboard",
         element: (
-          <Suspense fallback={loadingPage}><DashboardLayout /></Suspense>
+          <Suspense fallback={loadingPage}><DashboardPage /></Suspense>
         ),
-        children: [
-          {
-            path: "/dashboard",
-            element: (
-              <Suspense fallback={loadingPage}><DashboardPage /></Suspense>
-            ),
-          },
-        ],
       },
     ],
   },
