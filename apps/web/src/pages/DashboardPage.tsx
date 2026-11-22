@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Skeleton, TextField, Tooltip, Typography } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import ShowChartRoundedIcon from "@mui/icons-material/ShowChartRounded";
 import { useMarketStream } from "../hooks/useMarketStream";
 import { useToast } from "../components/ToastProvider";
