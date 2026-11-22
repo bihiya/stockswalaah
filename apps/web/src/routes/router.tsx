@@ -17,15 +17,24 @@ const LoginPage = lazy(() =>
     default: module.LoginPage,
   })),
 );
+const SignupPage = lazy(() =>
+  import("../pages/SignupPage").then((module) => ({
+    default: module.SignupPage,
+  })),
+);
 const loadingPage = <div className="route-loading" aria-label="Loading page" />;
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <Suspense fallback={loadingPage}>
-        <LoginPage />
-      </Suspense>
+      <Suspense fallback={loadingPage}><LoginPage /></Suspense>
+    ),
+  },
+  {
+    path: "/signup",
+    element: (
+      <Suspense fallback={loadingPage}><SignupPage /></Suspense>
     ),
   },
   {
@@ -33,17 +42,13 @@ export const router = createBrowserRouter([
     children: [
       {
         element: (
-          <Suspense fallback={loadingPage}>
-            <DashboardLayout />
-          </Suspense>
+          <Suspense fallback={loadingPage}><DashboardLayout /></Suspense>
         ),
         children: [
           {
             path: "/dashboard",
             element: (
-              <Suspense fallback={loadingPage}>
-                <DashboardPage />
-              </Suspense>
+              <Suspense fallback={loadingPage}><DashboardPage /></Suspense>
             ),
           },
         ],
