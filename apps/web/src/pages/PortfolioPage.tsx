@@ -1,4 +1,4 @@
-import { Box, Chip, Paper, Typography } from "@mui/material";
+import { Box, Chip, Paper, Skeleton, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useToast } from "../components/ToastProvider";
 
@@ -13,13 +13,58 @@ const positions = [
 export function PortfolioPage() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
-  useEffect(() => { const timer = window.setTimeout(() => setLoading(false), 500); return () => window.clearTimeout(timer); }, []);
-  return <Box className="dashboard-page">
-    <Box className="page-heading"><Box><Typography className="page-date">YOUR INVESTMENTS · SAMPLE DATA</Typography><Typography variant="h1">Portfolio</Typography><Typography className="panel-subtitle">Track a sample of your holdings and daily movement.</Typography></Box><Chip label="Demo portfolio" color="success" variant="outlined" /></Box>
-    <Paper elevation={0} className="holdings-panel"><Box className="panel-heading"><Box><Typography variant="h3">Holdings</Typography><Typography className="panel-subtitle">Values are illustrative and not connected to a brokerage account.</Typography></Box></Box>
-      <Box className="table-header holding-row"><Typography>ASSET</Typography><Typography>SHARES</Typography><Typography>PRICE</Typography><Typography>VALUE</Typography><Typography>DAY</Typography></Box>
-      {positions.map((position) => <Box className="holding-row portfolio-row" key={position.symbol}><Box><Typography fontWeight={600}>{position.symbol}</Typography><Typography variant="caption" color="text.secondary">{position.company}</Typography></Box><Typography>{position.quantity}</Typography><Typography>{position.price}</Typography><Typography fontWeight={600}>{position.value}</Typography><Typography color={position.change.startsWith("+") ? "success.main" : "error.main"}>{position.change}</Typography></Box>)}
-    </Paper>
-    <Box sx={{ mt: 2 }}><Chip label="Sample data only" size="small" onClick={() => showToast("Portfolio values are illustrative, not live financial data.", "info")} /></Box>
-  </Box>;
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoading(false), 500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  return (
+    <Box className="dashboard-page">
+      <Box className="page-heading">
+        <Box>
+          <Typography className="page-date">YOUR INVESTMENTS · SAMPLE DATA</Typography>
+          <Typography variant="h1">Portfolio</Typography>
+          <Typography className="panel-subtitle">Track a sample of your holdings and daily movement.</Typography>
+        </Box>
+        <Chip label="Demo portfolio" color="success" variant="outlined" />
+      </Box>
+      <Paper elevation={0} className="holdings-panel">
+        <Box className="panel-heading">
+          <Box>
+            <Typography variant="h3">Holdings</Typography>
+            <Typography className="panel-subtitle">Values are illustrative and not connected to a brokerage account.</Typography>
+          </Box>
+        </Box>
+        {loading ? (
+          <Box sx={{ mt: 2 }} aria-label="Loading holdings">
+            {positions.map((position) => (
+              <Box className="holding-row portfolio-row" key={position.symbol}>
+                <Skeleton variant="text" width="80%" />
+                <Skeleton variant="text" width={36} />
+                <Skeleton variant="text" width={72} />
+                <Skeleton variant="text" width={82} />
+                <Skeleton variant="text" width={55} />
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <>
+            <Box className="table-header holding-row">
+              <Typography>ASSET</Typography><Typography>SHARES</Typography><Typography>PRICE</Typography><Typography>VALUE</Typography><Typography>DAY</Typography>
+            </Box>
+            {positions.map((position) => (
+              <Box className="holding-row portfolio-row" key={position.symbol}>
+                <Box><Typography fontWeight={600}>{position.symbol}</Typography><Typography variant="caption" color="text.secondary">{position.company}</Typography></Box>
+                <Typography>{position.quantity}</Typography><Typography>{position.price}</Typography><Typography fontWeight={600}>{position.value}</Typography>
+                <Typography color={position.change.startsWith("+") ? "success.main" : "error.main"}>{position.change}</Typography>
+              </Box>
+            ))}
+          </>
+        )}
+      </Paper>
+      <Box sx={{ mt: 2 }}>
+        <Chip label="Sample data only" size="small" onClick={() => showToast("Portfolio values are illustrative, not live financial data.", "info")} />
+      </Box>
+    </Box>
+  );
 }
