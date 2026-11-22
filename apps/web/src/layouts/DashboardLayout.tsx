@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Avatar,
@@ -19,30 +19,40 @@ import ShowChartOutlinedIcon from "@mui/icons-material/ShowChartOutlined";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
+import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import { useAppDispatch } from "../store/hooks";
 import { signedOut } from "../store/slices/authSlice";
 import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
-  { label: "Overview", icon: <SpaceDashboardOutlinedIcon />, active: true },
-  { label: "Portfolio", icon: <ShowChartOutlinedIcon />, active: false },
-  { label: "Activity", icon: <NotificationsNoneOutlinedIcon />, active: false },
+  { label: "Overview", icon: <SpaceDashboardOutlinedIcon />, to: "/dashboard" },
+  { label: "Portfolio", icon: <ShowChartOutlinedIcon />, to: "/dashboard#portfolio" },
+  { label: "Activity", icon: <NotificationsNoneOutlinedIcon />, to: "/dashboard#activity" },
 ];
 
 export function DashboardLayout() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { userEmail } = useAuth();
+  const location = useLocation();
+  const { isAuthenticated, userEmail } = useAuth();
+
   const handleSignOut = () => {
     dispatch(signedOut());
-    navigate("/login");
+    navigate("/dashboard", { replace: true });
   };
 
   return (
     <Box className="dashboard-shell">
       <AppBar position="fixed" color="inherit" elevation={0} className="topbar">
         <Toolbar className="topbar-inner">
-          <Box className="brand-lockup">
+          <Box
+            component={RouterLink}
+            to="/dashboard"
+            className="brand-lockup"
+            aria-label="StockWallah overview"
+            sx={{ color: "inherit", textDecoration: "none" }}
+          >
             <span className="brand-mark">S</span>
             <Typography variant="h3">stockwallah</Typography>
           </Box>
@@ -53,20 +63,47 @@ export function DashboardLayout() {
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-            <Avatar className="user-avatar">
-              {userEmail?.slice(0, 1).toUpperCase() ?? "S"}
-            </Avatar>
+            {isAuthenticated ? (
+              <>
+                <Typography variant="body2" sx={{ display: { xs: "none", sm: "block" } }}>
+                  {userEmail}
+                </Typography>
+                <Avatar className="user-avatar" aria-label="Signed-in user">
+                  {userEmail?.slice(0, 1).toUpperCase() ?? "S"}
+                </Avatar>
+              </>
+            ) : (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Button component={RouterLink} to="/login" color="inherit" size="small">
+                  Sign in
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/signup"
+                  variant="contained"
+                  size="small"
+                  startIcon={<PersonAddAlt1RoundedIcon />}
+                  sx={{ display: { xs: "none", sm: "inline-flex" } }}
+                >
+                  Create account
+                </Button>
+              </Box>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
-      <Box component="aside" className="sidebar">
+
+      <Box component="aside" className="sidebar" aria-label="Main navigation">
         <Typography className="nav-caption">WORKSPACE</Typography>
         <List disablePadding>
           {navItems.map((item) => (
             <ListItemButton
               key={item.label}
-              selected={item.active}
+              component={RouterLink}
+              to={item.to}
+              selected={location.pathname === "/dashboard" && item.label === "Overview" && !location.hash}
               className="nav-item"
+              aria-label={item.label}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
@@ -74,19 +111,33 @@ export function DashboardLayout() {
           ))}
         </List>
         <Box className="sidebar-bottom">
-          <ListItemButton className="nav-item">
-            <ListItemIcon>
-              <SettingsOutlinedIcon />
-            </ListItemIcon>
+          <ListItemButton
+            component={RouterLink}
+            to="/dashboard#settings"
+            className="nav-item"
+            aria-label="Settings"
+          >
+            <ListItemIcon><SettingsOutlinedIcon /></ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItemButton>
-          <Button
-            startIcon={<LogoutOutlinedIcon />}
-            onClick={handleSignOut}
-            className="logout-button"
-          >
-            Sign out
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              startIcon={<LogoutOutlinedIcon />}
+              onClick={handleSignOut}
+              className="logout-button"
+            >
+              Sign out
+            </Button>
+          ) : (
+            <Button
+              component={RouterLink}
+              to="/login"
+              startIcon={<LoginRoundedIcon />}
+              className="logout-button"
+            >
+              Sign in
+            </Button>
+          )}
           <Typography className="sidebar-version">
             PLATFORM PREVIEW · 0.1.0
           </Typography>
